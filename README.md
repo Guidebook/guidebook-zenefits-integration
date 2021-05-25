@@ -17,7 +17,7 @@ This project uses webhooks in Zenefits to add, update and remove employees from 
 
 **Steps to load data:**
 1. Update all of the values in `settings.py` to your settings
-2. Run `data_loader.py` from within your virtualenv.
+2. Run `python data_loader.py` from within your virtualenv.
 
 ## Lambdas Setup
 **Steps to setup lambdas:**
@@ -28,7 +28,14 @@ The lambdas are contained in:
  - `remove_employee_webhook_receiver.py`
  - `update_existing_employee_webhook_receiver.py`
 3. Create an [API Gateway](https://aws.amazon.com/api-gateway/) and add the three lambdas as resources
-4. Deploy the lambdas and API Gateway
+4. Add the following parameters to AWS Systems Manager (Parameter Store)
+
+| Name | Type | Value |
+| ----------- | ----------- | ----------- |
+| `/lambdas/zenefitswebhookreceiver/api_key` | SecureString| Your Builder API key |
+| `/lambdas/zenefitswebhookreceiver/guide_id` | String | Guide ID in Builder |
+| `/lambdas/zenefitswebhookreceiver/employee_customlist_id` | String | The ID of your CustomList in Builder |
+5. Deploy the lambdas and API Gateway
 
 
 ## Webhooks Setup

@@ -4,8 +4,6 @@ import requests
 import settings
 import customlist_data_builder
 
-locations = {}
-departments = {}
 
 """
 This script will bootstrap a guide in Builder 

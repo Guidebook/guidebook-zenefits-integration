@@ -1,6 +1,11 @@
 import json
 import requests
 
+import settings
+
+locations = {}
+departments = {}
+
 """
 Builds the CustomList data structure that will be
 send to Builder.  The includes the following fields:
@@ -12,7 +17,6 @@ send to Builder.  The includes the following fields:
     6) Location - which location they work out of
     7) Department
 """
-
 def build(employee, guide_id):
     customlist_data = {
         "import_id": employee['id'],
@@ -34,7 +38,7 @@ def build(employee, guide_id):
                 locations[location_url])
         else:
             response = requests.get(location_url, headers={
-                                    'Authorization': 'Bearer ' + zenefits_app_key})
+                                    'Authorization': 'Bearer ' + settings.zenefits_app_key})
             location = json.loads(response.content)['data']
             locations[location_url] = location['name']
             location_string = '<p>Location: {}</p>'.format(location['name'])
@@ -47,7 +51,7 @@ def build(employee, guide_id):
                 departments[department_url])
         else:
             response = requests.get(department_url, headers={
-                                    'Authorization': 'Bearer ' + zenefits_app_key})
+                                    'Authorization': 'Bearer ' + settings.zenefits_app_key})
             department = json.loads(response.content)['data']
             departments[department_url] = department['name']
             department_string = 'Department: {}'.format(department['name'])
