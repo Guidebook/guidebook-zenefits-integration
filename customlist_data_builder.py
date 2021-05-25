@@ -20,6 +20,9 @@ def build(employee, guide_id):
         "name": "{} {}".format(employee['preferred_name'], employee['last_name']),
         "subtitle": employee['title'],
     }
+
+    # Build a string that contains most of the employee's info that can be
+    # displayed in the description field of the custom list item
     work_email_string = '<p>Work Email: {}</p>'.format(employee['work_email'])
     work_phone_string = '<p>Work Phone: {}</p>'.format(employee['work_phone'])
 

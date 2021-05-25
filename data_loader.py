@@ -8,7 +8,7 @@ locations = {}
 departments = {}
 
 """
-This script will bootstrap a guide  in Builder 
+This script will bootstrap a guide in Builder 
 with all of currently active employees in Zenefits
 """
 def load_employee_data():
