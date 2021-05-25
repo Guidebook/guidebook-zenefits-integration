@@ -1,8 +1,6 @@
 import json
 import requests
 
-import settings
-
 locations = {}
 departments = {}
 
@@ -17,7 +15,10 @@ send to Builder.  The includes the following fields:
     6) Location - which location they work out of
     7) Department
 """
-def build(employee, guide_id):
+def build(employee, guide_id, zenefits_app_key):
+    
+    print(zenefits_app_key)
+    # Build the basic CustomListItem object
     customlist_data = {
         "import_id": employee['id'],
         "guide": guide_id,
@@ -38,23 +39,25 @@ def build(employee, guide_id):
                 locations[location_url])
         else:
             response = requests.get(location_url, headers={
-                                    'Authorization': 'Bearer ' + settings.zenefits_app_key})
-            location = json.loads(response.content)['data']
-            locations[location_url] = location['name']
-            location_string = '<p>Location: {}</p>'.format(location['name'])
+                                    'Authorization': 'Bearer ' + zenefits_app_key})
+            print(response.content)
+            location_data = json.loads(response.content)['data']
+            print(location_data)
+            locations[location_url] = location_data['name']
+            location_string = '<p>Location: {}</p>'.format(location_data['name'])
 
     department_string = ''
-    if employee['department']['url'] is not None:
-        department_url = employee['department']['url']
-        if department_url in departments.keys():
-            department_string = 'Department: {}'.format(
-                departments[department_url])
-        else:
-            response = requests.get(department_url, headers={
-                                    'Authorization': 'Bearer ' + settings.zenefits_app_key})
-            department = json.loads(response.content)['data']
-            departments[department_url] = department['name']
-            department_string = 'Department: {}'.format(department['name'])
+    # if employee['department']['url'] is not None:
+    #     department_url = employee['department']['url']
+    #     if department_url in departments.keys():
+    #         department_string = 'Department: {}'.format(
+    #             departments[department_url])
+    #     else:
+    #         response = requests.get(department_url, headers={
+    #                                 'Authorization': 'Bearer ' + zenefits_app_key})
+    #         department = json.loads(response.content)['data']
+    #         departments[department_url] = department['name']
+    #         department_string = 'Department: {}'.format(department['name'])
 
     description_html = '{}{}{}{}'.format(
         work_email_string, work_phone_string, location_string, department_string)

@@ -10,10 +10,10 @@ def lambda_handler(event, context):
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with
-        api_key, guide_id, employee_customlist_id = ssm_util.fetch_ssm_params()
+        api_key, guide_id, employee_customlist_id, zenefits_app_key = ssm_util.fetch_ssm_params()
 
         employee_data = event['data']['data'][0]
-        customlist_data = customlist_data_builder.build(employee_data, guide_id)
+        customlist_data = customlist_data_builder.build(employee_data, guide_id, zenefits_app_key)
 
         # Create a new CustomListItem
         url = 'https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={}&custom_lists={}'.format(guide_id, employee_customlist_id)

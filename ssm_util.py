@@ -9,7 +9,7 @@ def fetch_ssm_params():
     
     # The api key used to send data to Builder
     api_key = client.get_parameter(
-        Name='/lambdas/zenefitswebhookreceiver/api_key', WithDecryption=False)['Parameter']['Value']
+        Name='/lambdas/zenefitswebhookreceiver/api_key', WithDecryption=True)['Parameter']['Value']
     
     # The id of the guide that will be updated in Builder 
     guide_id = client.get_parameter(
@@ -18,4 +18,7 @@ def fetch_ssm_params():
     # The id of the custom list that employees will be added to
     employee_customlist_id = client.get_parameter(
         Name='/lambdas/zenefitswebhookreceiver/employee_customlist_id', WithDecryption=False)['Parameter']['Value']
-    return api_key, guide_id, employee_customlist_id
+
+    zenefits_app_key = client.get_parameter(
+        Name='/lambdas/zenefitswebhookreceiver/zenefits_app_key', WithDecryption=True)['Parameter']['Value']
+    return api_key, guide_id, employee_customlist_id, zenefits_app_key

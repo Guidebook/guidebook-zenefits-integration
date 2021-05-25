@@ -35,6 +35,7 @@ The lambdas are contained in:
 | `/lambdas/zenefitswebhookreceiver/api_key` | SecureString| Your Builder API key |
 | `/lambdas/zenefitswebhookreceiver/guide_id` | String | Guide ID in Builder |
 | `/lambdas/zenefitswebhookreceiver/employee_customlist_id` | String | The ID of your CustomList in Builder |
+| `/lambdas/zenefitswebhookreceiver/zenefits_app_key` | SecureString | Your Zenefits App Key |
 5. Deploy the lambdas and API Gateway
 
 
