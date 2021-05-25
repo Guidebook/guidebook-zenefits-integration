@@ -1,9 +1,18 @@
 import json
 import requests
 
+"""
+Builds the CustomList data structure that will be
+send to Builder.  The includes the following fields:
+    1) Import ID - the employee's ID used in Zenefits
+    2) Name - The employee's preferred name and last name
+    3) Title - The employee's title
+    4) Work Email
+    5) Work Phone
+    6) Location - which location they work out of
+    7) Department
+"""
 
-# Builds the CustomList data structure that will
-# be send to Builder
 def build(employee, guide_id):
     customlist_data = {
         "import_id": employee['id'],

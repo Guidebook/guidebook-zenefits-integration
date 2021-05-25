@@ -1,5 +1,5 @@
 import requests
-import ssm_utils
+
 import ssm_util
 
 # Removes an employee from the guide
@@ -8,7 +8,7 @@ def lambda_handler(event, context):
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with
-        api_key, guide_id, employee_customlist_id = ssm_utils.fetch_ssm_params()
+        api_key, guide_id, employee_customlist_id = ssm_util.fetch_ssm_params()
 
         # Fetch the existing CustomListItem from Builder by filtering on the import_id field.
         # This is needed to obtain the CustomListItem.id, which is required in the PATCH request
@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         # If there is more than one matching CustomListItem, delete them all
         for custom_list_item in custom_list_items:
             delete_url = 'https://builder.guidebook.com/open-api/v1/custom-list-items/{}/'.format(custom_list_item['id'])
-            requests.delete(delete_url, 'Authorization': 'JWT ' + api_key})
+            requests.delete(delete_url, headers={'Authorization': 'JWT ' + api_key})
 
         # Publish the changes
         publish_url = 'https://builder.guidebook.com/open-api/v1/guides/{}/publish/'.format(guide_id)
