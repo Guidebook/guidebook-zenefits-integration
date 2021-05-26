@@ -17,7 +17,6 @@ send to Builder.  The includes the following fields:
 """
 def build(employee, guide_id, zenefits_app_key):
     
-    print(zenefits_app_key)
     # Build the basic CustomListItem object
     customlist_data = {
         "import_id": employee['id'],
@@ -40,24 +39,22 @@ def build(employee, guide_id, zenefits_app_key):
         else:
             response = requests.get(location_url, headers={
                                     'Authorization': 'Bearer ' + zenefits_app_key})
-            print(response.content)
             location_data = json.loads(response.content)['data']
-            print(location_data)
             locations[location_url] = location_data['name']
             location_string = '<p>Location: {}</p>'.format(location_data['name'])
 
     department_string = ''
-    # if employee['department']['url'] is not None:
-    #     department_url = employee['department']['url']
-    #     if department_url in departments.keys():
-    #         department_string = 'Department: {}'.format(
-    #             departments[department_url])
-    #     else:
-    #         response = requests.get(department_url, headers={
-    #                                 'Authorization': 'Bearer ' + zenefits_app_key})
-    #         department = json.loads(response.content)['data']
-    #         departments[department_url] = department['name']
-    #         department_string = 'Department: {}'.format(department['name'])
+    if employee['department']['url'] is not None:
+        department_url = employee['department']['url']
+        if department_url in departments.keys():
+            department_string = 'Department: {}'.format(
+                departments[department_url])
+        else:
+            response = requests.get(department_url, headers={
+                                    'Authorization': 'Bearer ' + zenefits_app_key})
+            department = json.loads(response.content)['data']
+            departments[department_url] = department['name']
+            department_string = 'Department: {}'.format(department['name'])
 
     description_html = '{}{}{}{}'.format(
         work_email_string, work_phone_string, location_string, department_string)

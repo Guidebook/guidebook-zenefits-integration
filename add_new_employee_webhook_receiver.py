@@ -1,3 +1,4 @@
+import traceback
 import json
 import requests
 import ssm_util
@@ -12,7 +13,7 @@ def lambda_handler(event, context):
         # is published, and the custom list ID that the items are associated with
         api_key, guide_id, employee_customlist_id, zenefits_app_key = ssm_util.fetch_ssm_params()
 
-        employee_data = event['data']['data'][0]
+        employee_data = event['data']
         customlist_data = customlist_data_builder.build(employee_data, guide_id, zenefits_app_key)
 
         # Create a new CustomListItem
@@ -32,8 +33,9 @@ def lambda_handler(event, context):
         publish_url = 'https://builder.guidebook.com/open-api/v1/guides/{}/publish/'.format(guide_id)
         requests.post(publish_url, headers={'Authorization': 'JWT ' + api_key})
 
-    except:
-        print('Unable to add data for event {}'.format(event))
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
     
     return {
         'statusCode': 200

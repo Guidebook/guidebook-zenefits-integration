@@ -1,3 +1,5 @@
+import traceback
+import json
 import requests
 
 import ssm_util
@@ -8,7 +10,9 @@ def lambda_handler(event, context):
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with
-        api_key, guide_id, employee_customlist_id = ssm_util.fetch_ssm_params()
+        api_key, guide_id, employee_customlist_id, zenefits_app_key = ssm_util.fetch_ssm_params()
+
+        data = event['data']
 
         # Fetch the existing CustomListItem from Builder by filtering on the import_id field.
         # This is needed to obtain the CustomListItem.id, which is required in the PATCH request
@@ -27,8 +31,9 @@ def lambda_handler(event, context):
         publish_url = 'https://builder.guidebook.com/open-api/v1/guides/{}/publish/'.format(guide_id)
         requests.post(publish_url, headers={'Authorization': 'JWT ' + api_key})
 
-    except:
-        print('Unable to update data for event {}'.format(event))
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
 
     # Always return 200 so Zenefits doesn't keep retrying
     return {
