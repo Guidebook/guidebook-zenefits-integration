@@ -4,11 +4,13 @@ import requests
 
 from ssm_util import fetch_ssm_params
 
-# Removes an employee from the guide
-# once their employment has been terminated
 
-
-def lambda_handler(event, context):
+def remove_employee_from_guide(event, context):
+    """
+    Removes an employee from the guide
+    once their employment has been terminated
+    """
+    
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with
@@ -31,9 +33,7 @@ def lambda_handler(event, context):
 
         # If there is more than one matching CustomListItem, delete them all
         for custom_list_item in custom_list_items:
-            url = "https://builder.guidebook.com/open-api/v1/custom-list-items/{}/".format(
-                custom_list_item["id"]
-            )
+            url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/{custom_list_item['id']}/"
             session.delete(url)
 
         # Publish the changes

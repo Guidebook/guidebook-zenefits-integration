@@ -6,10 +6,13 @@ from ssm_util import fetch_ssm_params
 import customlist_data_builder
 
 
-# This lambda adds a new employee
-# to the guide after they are added
-# in Zenefits
-def lambda_handler(event, context):
+def add_employee_to_guide(event, context):
+    """
+    This lambda adds a new employee
+    to the guide after they are added
+    in Zenefits
+    """
+    
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with

@@ -23,9 +23,7 @@ def load_employee_data():
         {"Authorization": f"Bearer {settings.zenefits_app_key}"}
     )
 
-    next_url = (
-        f"https://api.zenefits.com/core/companies/{settings.zenefits_company_id}/people"
-    )
+    next_url = f"https://api.zenefits.com/core/companies/{settings.zenefits_company_id}/people"
     employee_list = []
     while next_url is not None:
         response = zenefits_session.get(next_url)

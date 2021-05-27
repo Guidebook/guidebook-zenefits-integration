@@ -5,12 +5,14 @@ import traceback
 from ssm_util import fetch_ssm_params
 import customlist_data_builder
 
-# This lambda triggers when an existing employee
-# modifies their data in Zenefits.  The new data
-# will be written to the appropriate Guide in Builder
 
+def update_employee_in_guide(event, context):
+    """
+    This lambda triggers when an existing employee
+    modifies their data in Zenefits.  The new data
+    will be written to the appropriate Guide in Builder
+    """
 
-def lambda_handler(event, context):
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with

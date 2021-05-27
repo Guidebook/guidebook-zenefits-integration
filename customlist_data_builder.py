@@ -35,23 +35,19 @@ def build(employee, guide_id, zenefits_app_key):
 
     if employee["location"]["url"] is not None:
         location_url = employee["location"]["url"]
-        if location_url in location_cache:
-            location_string = location_cache[location_url]
-        else:
+        if location_url not in location_cache:
             location = get_zenefits_info(location_url, zenefits_app_key)
             location_cache[location_url] = location["name"]
-            location_string = f"<p>Location: {location_cache[location_url]}</p>"
+        location_string = f"<p>Location: {location_cache[location_url]}</p>"
     else:
         location_string = ""
 
     if employee["department"]["url"] is not None:
         department_url = employee["department"]["url"]
-        if department_url in department_cache:
-            department_string = f"Department: {department_cache[department_url]}"
-        else:
+        if department_url not in department_cache:
             department = get_zenefits_info(department_url, zenefits_app_key)
             department_cache[department_url] = department["name"]
-            department_string = "Department: {}".format(department["name"])
+        department_string = f"<p>Department: {department_cache[department_url]}</p>"
     else:
         department_string = ""
 
