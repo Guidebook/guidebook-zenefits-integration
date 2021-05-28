@@ -3,7 +3,7 @@ import json
 import requests
 
 from ssm_util import fetch_ssm_params
-import customlist_data_builder
+from customlist_data_builder import CustomlistDataBuilder
 
 
 def add_employee_to_guide(event, context):
@@ -12,7 +12,7 @@ def add_employee_to_guide(event, context):
     to the guide after they are added
     in Zenefits
     """
-    
+
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with
@@ -22,17 +22,17 @@ def add_employee_to_guide(event, context):
         session = requests.Session()
         session.headers.update({"Authorization": f"JWT {api_key}"})
 
+        # Use the lambda event data to build a CustomListItem
         employee_data = event["data"]
-        customlist_data = customlist_data_builder.build(
-            employee_data, guide_id, zenefits_app_key
-        )
+        customlist_data_builder = CustomlistDataBuilder(guide_id, zenefits_app_key)
+        customlist_data = customlist_data_builder.build(employee_data)
 
-        # Create a new CustomListItem
+        # Create a new CustomListItem in Builder
         url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={guide_id}&custom_lists={employee_customlist_id}"
         response = session.post(url, data=customlist_data)
         response.raise_for_status()
 
-        # Create a new CustomListItemRelation
+        # Create a new CustomListItemRelation in Builder
         relations_data = {
             "custom_list": employee_customlist_id,
             "custom_list_item": response.json()["id"],

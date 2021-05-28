@@ -10,7 +10,7 @@ def remove_employee_from_guide(event, context):
     Removes an employee from the guide
     once their employment has been terminated
     """
-    
+
     try:
         # Fetch the Builder API key, the guide ID of the guide where the content
         # is published, and the custom list ID that the items are associated with

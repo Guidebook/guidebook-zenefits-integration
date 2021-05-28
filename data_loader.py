@@ -9,7 +9,7 @@ import json
 import requests
 
 import settings
-import customlist_data_builder
+from customlist_data_builder import CustomlistDataBuilder
 
 
 def load_employee_data():
@@ -23,7 +23,13 @@ def load_employee_data():
         {"Authorization": f"Bearer {settings.zenefits_app_key}"}
     )
 
-    next_url = f"https://api.zenefits.com/core/companies/{settings.zenefits_company_id}/people"
+    customlist_data_builder = CustomlistDataBuilder(
+        settings.guide_id, settings.zenefits_app_key
+    )
+
+    next_url = (
+        f"https://api.zenefits.com/core/companies/{settings.zenefits_company_id}/people"
+    )
     employee_list = []
     while next_url is not None:
         response = zenefits_session.get(next_url)
@@ -36,7 +42,7 @@ def load_employee_data():
             if not _is_active_employee(employee, zenefits_session):
                 continue
 
-            customlist_data = customlist_data_builder.build(employee, settings.guide_id)
+            customlist_data = customlist_data_builder.build(employee)
 
             employee_custom_list_items_url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={settings.guide_id}&custom_lists={settings.employee_customlist_id}"
             response = builder_session.post(
