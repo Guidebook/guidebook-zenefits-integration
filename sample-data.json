@@ -1,0 +1,45 @@
+{
+  "status": 200,
+  "object": "/meta/response",
+  "data": {
+    "equal_employment_opportunities": {
+      "url": "https://api.zenefits.com/core/equal_employment_opportunities?person=5913428",
+      "object": "/meta/ref/detail",
+      "ref_object": "/core/equal_employment_opportunities"
+    },
+    "first_name": "Chris",
+    "last_name": "Casey",
+    "middle_name": "",
+    "title": "VP, Engineeringggggg",
+    "work_phone": "(555) 555-5555",
+    "type": "regular",
+    "company": {
+      "url": "https://api.zenefits.com/core/companies/31877",
+      "object": "/meta/ref/detail",
+      "ref_object": "/core/companies"
+    },
+    "object": "/core/people",
+    "employee_number": "244",
+    "preferred_name": "Chris",
+    "is_admin": false,
+    "url": "https://api.zenefits.com/core/people/5913428",
+    "department": {
+      "url": "https://api.zenefits.com/core/departments/12011",
+      "object": "/meta/ref/detail",
+      "ref_object": "/core/departments"
+    },
+    "employments": {
+      "url": "https://api.zenefits.com/core/people/5913428/employments",
+      "object": "/meta/ref/list",
+      "ref_object": "/core/employments"
+    },
+    "work_email": "ccasey@guidebook.com",
+    "id": "5913428",
+    "location": {
+      "url": "https://api.zenefits.com/core/locations/37464",
+      "object": "/meta/ref/detail",
+      "ref_object": "/core/locations"
+    }
+  },
+  "error": null
+}
