@@ -23,9 +23,9 @@ def update_employee_in_guide(event, context):
         session.headers.update({"Authorization": f"JWT {api_key}"})
 
         # Use the lambda event data to build a CustomListItem
-        employee_data = event["data"]
+        data = event["data"]
         customlist_data_builder = CustomlistDataBuilder(guide_id, zenefits_app_key)
-        customlist_data = customlist_data_builder.build(employee_data)
+        customlist_data = customlist_data_builder.build(data)
 
         # Fetch the existing CustomListItem from Builder by filtering on the import_id field.
         # This is needed to obtain the CustomListItem.id, which is required in the PATCH request
