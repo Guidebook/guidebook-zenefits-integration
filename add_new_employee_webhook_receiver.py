@@ -29,8 +29,19 @@ def add_employee_to_guide(event, context):
 
         # Create a new CustomListItem in Builder
         url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={guide_id}&custom_lists={employee_customlist_id}"
-        response = session.post(url, data=customlist_data)
-        response.raise_for_status()
+        photo_available = False
+        if employee_data.get('photo_url'):
+            img_response = requests.get(employee_data['photo_url'])
+            photo_available = True if img_response.status_code == 200 else False
+
+        if photo_available:
+            with open('image.jpg', 'wb') as handler:
+                handler.write(img_response.content)
+            with open('image.jpg', 'rb') as handler:
+                response = _post_to_builder(session, url, customlist_data, {"thumbnail": handler})
+            os.remove('image.jpg')
+        else:
+            response = _post_to_builder(session, url, customlist_data)
 
         # Create a new CustomListItemRelation in Builder
         relations_data = {
@@ -38,13 +49,10 @@ def add_employee_to_guide(event, context):
             "custom_list_item": response.json()["id"],
         }
         url = "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/"
-        response = session.post(url, data=relations_data)
-        response.raise_for_status()
+        _post_to_builder(session, url, data=relations_data)
 
         # Publish the changes
-        response = session.post(
-            f"https://builder.guidebook.com/open-api/v1/guides/{guide_id}/publish/"
-        )
+        response = _post_to_builder(session, f"https://builder.guidebook.com/open-api/v1/guides/{guide_id}/publish/", raise_error=False)
         if response.status_code == 403:
             print(response.content)
 
@@ -54,3 +62,16 @@ def add_employee_to_guide(event, context):
         return {"statusCode": 500}
 
     return {"statusCode": 200}
+
+
+def _post_to_builder(session, url, data=None, files=None, raise_error=True):
+    if data and files:
+        response = session.post(url, data=data, files=files)
+    elif data:
+        response = session.post(url, data=data)
+    else:
+        response = session.post(url)
+
+    if raise_error:
+        response.raise_for_status()
+    return response

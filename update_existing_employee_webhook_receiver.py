@@ -40,7 +40,19 @@ def update_employee_in_guide(event, context):
         url = "https://builder.guidebook.com/open-api/v1/custom-list-items/{}/".format(
             custom_list_item["id"]
         )
-        patch_response = session.patch(url, data=customlist_data)
+        photo_available = False
+        if employee_data.get('photo_url'):
+            img_response = requests.get(employee_data['photo_url'])
+            photo_available = True if img_response.status_code == 200 else False
+
+        if photo_available:
+            with open('image.jpg', 'wb') as handler:
+                handler.write(img_response.content)
+            with open('image.jpg', 'rb') as handler:
+                patch_response = session.patch(url, data=customlist_data, files={"thumbnail": handler})
+            os.remove('image.jpg')
+        else:
+            patch_response = session.patch(url, data=customlist_data)
         patch_response.raise_for_status()
 
         # Publish the changes

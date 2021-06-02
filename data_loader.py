@@ -7,6 +7,7 @@ to date before running this.
 
 import json
 import requests
+import os
 
 import settings
 from customlist_data_builder import CustomlistDataBuilder
@@ -45,20 +46,28 @@ def load_employee_data():
             customlist_data = customlist_data_builder.build(employee)
 
             employee_custom_list_items_url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={settings.guide_id}&custom_lists={settings.employee_customlist_id}"
-            response = builder_session.post(
-                employee_custom_list_items_url, data=customlist_data
-            )
-            response.raise_for_status()
+            
+            # Download and add employee photo to the builder post request if the photo is available
+            photo_available = False
+            if employee_data.get('photo_url'):
+                img_response = requests.get(employee_data['photo_url'])
+                photo_available = True if img_response.status_code == 200 else False
 
+            if photo_available:
+                with open('image.jpg', 'wb') as handler:
+                    handler.write(img_response.content)
+                with open('image.jpg', 'rb') as handler:
+                    response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data, {"thumbnail": handler})
+                os.remove('image.jpg')
+            else:
+                response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data)
+
+            # Attach the new custom list item to the custom list
             relations_data = {
                 "custom_list": settings.employee_customlist_id,
                 "custom_list_item": response.json()["id"],
             }
-            response = builder_session.post(
-                "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/",
-                data=relations_data,
-            )
-            response.raise_for_status()
+            _post_to_builder(builder_session, "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/", relations_data)
             print("Added {} to Builder".format(customlist_data["name"]))
         next_url = data["next_url"]
 
@@ -71,6 +80,16 @@ def _is_active_employee(employee, zenefits_session):
         if employment["termination_date"] is None:
             return True
     return False
+
+
+def _post_to_builder(builder_session, url, data, files=None):
+    if files:
+        response = builder_session.post(url, data=data, files=files)
+    else:
+        response = builder_session.post(url, data=data)
+
+    response.raise_for_status()
+    return response
 
 
 if __name__ == "__main__":
