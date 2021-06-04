@@ -12,18 +12,15 @@ def fetch_ssm_params():
         Name="/lambdas/zenefitswebhookreceiver/api_key", WithDecryption=True
     )["Parameter"]["Value"]
 
-    # The id of the guide that will be updated in Builder
-    guide_id = client.get_parameter(
-        Name="/lambdas/zenefitswebhookreceiver/guide_id", WithDecryption=False
+    # The ids of the guides and custom lists that will be updated in Builder
+    guide_and_list_ids = client.get_parameter(
+        Name="/lambdas/zenefitswebhookreceiver/guide_and_list_ids", WithDecryption=False
     )["Parameter"]["Value"]
-
-    # The id of the custom list that employees will be added to
-    employee_customlist_id = client.get_parameter(
-        Name="/lambdas/zenefitswebhookreceiver/employee_customlist_id",
-        WithDecryption=False,
-    )["Parameter"]["Value"]
+    guide_and_list_ids = list(eval(guide_and_list_ids))
 
     zenefits_app_key = client.get_parameter(
         Name="/lambdas/zenefitswebhookreceiver/zenefits_app_key", WithDecryption=True
     )["Parameter"]["Value"]
-    return api_key, guide_id, employee_customlist_id, zenefits_app_key
+
+    return api_key, guide_and_list_ids, zenefits_app_key
+
