@@ -1,6 +1,7 @@
 import traceback
 import json
 import requests
+import os
 
 from ssm_util import fetch_ssm_params
 from customlist_data_builder import CustomlistDataBuilder
@@ -36,11 +37,11 @@ def add_employee_to_guide(event, context):
                 photo_available = True if img_response.status_code == 200 else False
 
             if photo_available:
-                with open('image.jpg', 'wb') as handler:
+                with open('/tmp/image.jpg', 'wb') as handler:
                     handler.write(img_response.content)
-                with open('image.jpg', 'rb') as handler:
+                with open('/tmp/image.jpg', 'rb') as handler:
                     response = _post_to_builder(session, url, customlist_data, {"thumbnail": handler})
-                os.remove('image.jpg')
+                os.remove('/tmp/image.jpg')
             else:
                 response = _post_to_builder(session, url, customlist_data)
 

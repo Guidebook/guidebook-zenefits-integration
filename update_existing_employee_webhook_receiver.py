@@ -1,6 +1,7 @@
 import json
 import requests
 import traceback
+import os
 
 from ssm_util import fetch_ssm_params
 from customlist_data_builder import CustomlistDataBuilder
@@ -47,11 +48,11 @@ def update_employee_in_guide(event, context):
                 photo_available = True if img_response.status_code == 200 else False
 
             if photo_available:
-                with open('image.jpg', 'wb') as handler:
+                with open('/tmp/image.jpg', 'wb') as handler:
                     handler.write(img_response.content)
-                with open('image.jpg', 'rb') as handler:
+                with open('/tmp/image.jpg', 'rb') as handler:
                     patch_response = session.patch(url, data=customlist_data, files={"thumbnail": handler})
-                os.remove('image.jpg')
+                os.remove('/tmp/image.jpg')
             else:
                 patch_response = session.patch(url, data=customlist_data)
             patch_response.raise_for_status()
