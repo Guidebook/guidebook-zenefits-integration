@@ -37,38 +37,40 @@ def load_employee_data():
         response.raise_for_status()
 
         data = response.json()["data"]
-        for employee in data["data"]:
+        for guide_id, employee_customlist_id in settings.guide_and_list_ids:
+            for employee in data["data"]:
 
-            # Only add active employees to the list
-            if not _is_active_employee(employee, zenefits_session):
-                continue
+                # Only add active employees to the list
+                if not _is_active_employee(employee, zenefits_session):
+                    continue
 
-            customlist_data = customlist_data_builder.build(employee)
+                customlist_data = customlist_data_builder.build(employee)
 
-            employee_custom_list_items_url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={settings.guide_id}&custom_lists={settings.employee_customlist_id}"
-            
-            # Download and add employee photo to the builder post request if the photo is available
-            photo_available = False
-            if employee_data.get('photo_url'):
-                img_response = requests.get(employee_data['photo_url'])
-                photo_available = True if img_response.status_code == 200 else False
+                employee_custom_list_items_url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={guide_id}&custom_lists={employee_customlist_id}"
+                
+                # Download and add employee photo to the builder post request if the photo is available
+                photo_available = False
+                if employee_data.get('photo_url'):
+                    img_response = requests.get(employee_data['photo_url'])
+                    photo_available = True if img_response.status_code == 200 else False
 
-            if photo_available:
-                with open('image.jpg', 'wb') as handler:
-                    handler.write(img_response.content)
-                with open('image.jpg', 'rb') as handler:
-                    response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data, {"thumbnail": handler})
-                os.remove('image.jpg')
-            else:
-                response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data)
+                if photo_available:
+                    with open('image.jpg', 'wb') as handler:
+                        handler.write(img_response.content)
+                    with open('image.jpg', 'rb') as handler:
+                        response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data, {"thumbnail": handler})
+                    os.remove('image.jpg')
+                else:
+                    response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data)
 
-            # Attach the new custom list item to the custom list
-            relations_data = {
-                "custom_list": settings.employee_customlist_id,
-                "custom_list_item": response.json()["id"],
-            }
-            _post_to_builder(builder_session, "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/", relations_data)
-            print("Added {} to Builder".format(customlist_data["name"]))
+                # Attach the new custom list item to the custom list
+                relations_data = {
+                    "custom_list": employee_customlist_id,
+                    "custom_list_item": response.json()["id"],
+                }
+                _post_to_builder(builder_session, "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/", relations_data)
+                print("Added {} to Builder".format(customlist_data["name"]))
+
         next_url = data["next_url"]
 
 

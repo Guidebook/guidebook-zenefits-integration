@@ -33,7 +33,7 @@ The lambdas are contained in:
 | Name | Type | Value |
 | ----------- | ----------- | ----------- |
 | `/lambdas/zenefitswebhookreceiver/api_key` | SecureString| Your Builder API key |
-| `/lambdas/zenefitswebhookreceiver/guide_id` | String | Guide ID in Builder |
+| `/lambdas/zenefitswebhookreceiver/guide_and_list_ids` | String | List of guide and custom list ids to update in Builder, ex: (<guide1_id>, <list1_id>), (<guide2_id>, <list2_id>)|
 | `/lambdas/zenefitswebhookreceiver/employee_customlist_id` | String | The ID of your CustomList in Builder |
 | `/lambdas/zenefitswebhookreceiver/zenefits_app_key` | SecureString | Your Zenefits App Key |
 5. Deploy the lambdas and API Gateway
