@@ -11,13 +11,13 @@ import os
 
 import settings
 from customlist_data_builder import CustomlistDataBuilder
+from builder_client import BuilderClient
 
 
 def load_employee_data():
 
     # Initialize a Session for Builder and Zenefits
-    builder_session = requests.Session()
-    builder_session.headers.update({"Authorization": f"JWT {settings.builder_api_key}"})
+    builder_client = BuilderClient(settings.builder_api_key)
 
     zenefits_session = requests.Session()
     zenefits_session.headers.update(
@@ -58,17 +58,17 @@ def load_employee_data():
                     with open('image.jpg', 'wb') as handler:
                         handler.write(img_response.content)
                     with open('image.jpg', 'rb') as handler:
-                        response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data, {"thumbnail": handler})
+                        response = builder_client.post(employee_custom_list_items_url, customlist_data, {"thumbnail": handler})
                     os.remove('image.jpg')
                 else:
-                    response = _post_to_builder(builder_session, employee_custom_list_items_url, customlist_data)
+                    response = builder_client.post(employee_custom_list_items_url, customlist_data)
 
                 # Attach the new custom list item to the custom list
                 relations_data = {
                     "custom_list": employee_customlist_id,
                     "custom_list_item": response.json()["id"],
                 }
-                _post_to_builder(builder_session, "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/", relations_data)
+                builder_client.post("https://builder.guidebook.com/open-api/v1/custom-list-item-relations/", relations_data)
                 print("Added {} to Builder".format(customlist_data["name"]))
 
         next_url = data["next_url"]
@@ -82,16 +82,6 @@ def _is_active_employee(employee, zenefits_session):
         if employment["termination_date"] is None:
             return True
     return False
-
-
-def _post_to_builder(builder_session, url, data, files=None):
-    if files:
-        response = builder_session.post(url, data=data, files=files)
-    else:
-        response = builder_session.post(url, data=data)
-
-    response.raise_for_status()
-    return response
 
 
 if __name__ == "__main__":

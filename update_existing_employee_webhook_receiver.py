@@ -5,6 +5,8 @@ import os
 
 from ssm_util import fetch_ssm_params
 from customlist_data_builder import CustomlistDataBuilder
+from constants import IMAGE_PATH
+from builder_client import BuilderClient
 
 
 def update_employee_in_guide(event, context):
@@ -20,8 +22,7 @@ def update_employee_in_guide(event, context):
         api_key, guide_and_list_ids, zenefits_app_key = fetch_ssm_params()
 
         # Initialize a Session
-        session = requests.Session()
-        session.headers.update({"Authorization": f"JWT {api_key}"})
+        builder_client = BuilderClient(api_key)
 
         for guide_id, employee_customlist_id in guide_and_list_ids:
             # Use the lambda event data to build a CustomListItem
@@ -34,7 +35,7 @@ def update_employee_in_guide(event, context):
             url = "https://builder.guidebook.com/open-api/v1/custom-list-items?guide={}&custom_lists={}&import_id={}".format(
                 guide_id, employee_customlist_id, data["id"]
             )
-            response = session.get(url)
+            response = builder_client.get(url)
             response.raise_for_status()
             custom_list_item = response.json()["results"][0]
 
@@ -45,22 +46,19 @@ def update_employee_in_guide(event, context):
             photo_available = False
             if employee_data.get('photo_url'):
                 img_response = requests.get(employee_data['photo_url'])
-                photo_available = True if img_response.status_code == 200 else False
+                photo_available = True if img_response.status_code == 200
 
             if photo_available:
-                with open('/tmp/image.jpg', 'wb') as handler:
+                with open(IMAGE_PATH, 'wb') as handler:
                     handler.write(img_response.content)
-                with open('/tmp/image.jpg', 'rb') as handler:
-                    patch_response = session.patch(url, data=customlist_data, files={"thumbnail": handler})
-                os.remove('/tmp/image.jpg')
+                with open(IMAGE_PATH, 'rb') as handler:
+                    builder_client.patch(url, data=customlist_data, files={"thumbnail": handler})
+                os.remove(IMAGE_PATH)
             else:
-                patch_response = session.patch(url, data=customlist_data)
-            patch_response.raise_for_status()
+                builder_client.patch(url, data=customlist_data)
 
         # Publish the changes
-        response = session.post(
-            f"https://builder.guidebook.com/open-api/v1/guides/{guide_id}/publish/"
-        )
+        response = builder_client.post(f"https://builder.guidebook.com/open-api/v1/guides/{guide_id}/publish/", raise_error=False)
         if response.status_code == 403:
             print(response.content)
 

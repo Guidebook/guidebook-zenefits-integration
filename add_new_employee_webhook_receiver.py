@@ -5,6 +5,8 @@ import os
 
 from ssm_util import fetch_ssm_params
 from customlist_data_builder import CustomlistDataBuilder
+from constants import IMAGE_PATH
+from builder_client import BuilderClient
 
 
 def add_employee_to_guide(event, context):
@@ -20,8 +22,7 @@ def add_employee_to_guide(event, context):
         api_key, guide_and_list_ids, zenefits_app_key = fetch_ssm_params()
 
         # Initialize a Session
-        session = requests.Session()
-        session.headers.update({"Authorization": f"JWT {api_key}"})
+        builder_client = BuilderClient(api_key)
 
         for guide_id, employee_customlist_id in guide_and_list_ids:
             # Use the lambda event data to build a CustomListItem
@@ -37,13 +38,13 @@ def add_employee_to_guide(event, context):
                 photo_available = True if img_response.status_code == 200 else False
 
             if photo_available:
-                with open('/tmp/image.jpg', 'wb') as handler:
+                with open(IMAGE_PATH, 'wb') as handler:
                     handler.write(img_response.content)
-                with open('/tmp/image.jpg', 'rb') as handler:
-                    response = _post_to_builder(session, url, customlist_data, {"thumbnail": handler})
-                os.remove('/tmp/image.jpg')
+                with open(IMAGE_PATH, 'rb') as handler:
+                    response = builder_client.post(url, customlist_data, {"thumbnail": handler})
+                os.remove(IMAGE_PATH)
             else:
-                response = _post_to_builder(session, url, customlist_data)
+                response = builder_client.post(url, customlist_data)
 
             # Create a new CustomListItemRelation in Builder
             relations_data = {
@@ -51,10 +52,10 @@ def add_employee_to_guide(event, context):
                 "custom_list_item": response.json()["id"],
             }
             url = "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/"
-            _post_to_builder(session, url, data=relations_data)
+            builder_client.post(url, data=relations_data)
 
         # Publish the changes
-        response = _post_to_builder(session, f"https://builder.guidebook.com/open-api/v1/guides/{guide_id}/publish/", raise_error=False)
+        response = builder_client.post(f"https://builder.guidebook.com/open-api/v1/guides/{guide_id}/publish/", raise_error=False)
         if response.status_code == 403:
             print(response.content)
 
@@ -64,16 +65,3 @@ def add_employee_to_guide(event, context):
         return {"statusCode": 500}
 
     return {"statusCode": 200}
-
-
-def _post_to_builder(session, url, data=None, files=None, raise_error=True):
-    if data and files:
-        response = session.post(url, data=data, files=files)
-    elif data:
-        response = session.post(url, data=data)
-    else:
-        response = session.post(url)
-
-    if raise_error:
-        response.raise_for_status()
-    return response
