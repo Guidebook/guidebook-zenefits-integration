@@ -4,7 +4,7 @@ import requests
 import os
 
 from ssm_util import fetch_ssm_params
-from customlist_data_builder import CustomlistDataBuilder
+from customlist_data_builder import CustomlistItemDataBuilder
 from constants import IMAGE_PATH
 from builder_client import BuilderClient
 
@@ -27,7 +27,7 @@ def add_employee_to_guide(event, context):
         for guide_id, employee_customlist_id in guide_and_list_ids:
             # Use the lambda event data to build a CustomListItem
             employee_data = event["data"]
-            customlist_data_builder = CustomlistDataBuilder(guide_id, zenefits_app_key)
+            customlist_data_builder = CustomlistItemDataBuilder(guide_id, zenefits_app_key)
             customlist_data = customlist_data_builder.build(employee_data)
 
             # Create a new CustomListItem in Builder

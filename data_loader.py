@@ -10,7 +10,7 @@ import requests
 import os
 
 import settings
-from customlist_data_builder import CustomlistDataBuilder
+from customlist_data_builder import CustomlistItemDataBuilder
 from builder_client import BuilderClient
 
 
@@ -24,7 +24,7 @@ def load_employee_data():
         {"Authorization": f"Bearer {settings.zenefits_app_key}"}
     )
 
-    customlist_data_builder = CustomlistDataBuilder(
+    customlist_data_builder = CustomlistItemDataBuilder(
         settings.guide_id, settings.zenefits_app_key
     )
 
