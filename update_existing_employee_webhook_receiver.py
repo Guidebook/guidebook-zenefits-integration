@@ -44,9 +44,9 @@ def update_employee_in_guide(event, context):
                 custom_list_item["id"]
             )
             photo_available = False
-            if employee_data.get('photo_url'):
-                img_response = requests.get(employee_data['photo_url'])
-                photo_available = True if img_response.status_code == 200
+            if data.get('photo_url'):
+                img_response = requests.get(data['photo_url'])
+                photo_available = True if img_response.status_code == 200 else False
 
             if photo_available:
                 with open(IMAGE_PATH, 'wb') as handler:
