@@ -24,10 +24,6 @@ def load_employee_data():
         {"Authorization": f"Bearer {settings.zenefits_app_key}"}
     )
 
-    customlist_data_builder = CustomlistItemDataBuilder(
-        settings.guide_id, settings.zenefits_app_key
-    )
-
     next_url = (
         f"https://api.zenefits.com/core/companies/{settings.zenefits_company_id}/people"
     )
@@ -38,6 +34,9 @@ def load_employee_data():
 
         data = response.json()["data"]
         for guide_id, employee_customlist_id in settings.guide_and_list_ids:
+            customlist_data_builder = CustomlistItemDataBuilder(
+                guide_id, settings.zenefits_app_key
+            )
             for employee in data["data"]:
 
                 # Only add active employees to the list
@@ -50,8 +49,8 @@ def load_employee_data():
                 
                 # Download and add employee photo to the builder post request if the photo is available
                 photo_available = False
-                if employee_data.get('photo_url'):
-                    img_response = requests.get(employee_data['photo_url'])
+                if employee.get('photo_url'):
+                    img_response = requests.get(employee['photo_url'])
                     photo_available = True if img_response.status_code == 200 else False
 
                 if photo_available:
