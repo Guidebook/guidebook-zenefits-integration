@@ -7,24 +7,21 @@ to date before running this.
 
 import json
 import requests
+import os
 
 import settings
-from customlist_data_builder import CustomlistDataBuilder
+from customlist_data_builder import CustomlistItemDataBuilder
+from builder_client import BuilderClient
 
 
 def load_employee_data():
 
     # Initialize a Session for Builder and Zenefits
-    builder_session = requests.Session()
-    builder_session.headers.update({"Authorization": f"JWT {settings.builder_api_key}"})
+    builder_client = BuilderClient(settings.builder_api_key)
 
     zenefits_session = requests.Session()
     zenefits_session.headers.update(
         {"Authorization": f"Bearer {settings.zenefits_app_key}"}
-    )
-
-    customlist_data_builder = CustomlistDataBuilder(
-        settings.guide_id, settings.zenefits_app_key
     )
 
     next_url = (
@@ -36,30 +33,43 @@ def load_employee_data():
         response.raise_for_status()
 
         data = response.json()["data"]
-        for employee in data["data"]:
-
-            # Only add active employees to the list
-            if not _is_active_employee(employee, zenefits_session):
-                continue
-
-            customlist_data = customlist_data_builder.build(employee)
-
-            employee_custom_list_items_url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={settings.guide_id}&custom_lists={settings.employee_customlist_id}"
-            response = builder_session.post(
-                employee_custom_list_items_url, data=customlist_data
+        for guide_id, employee_customlist_id in settings.guide_and_list_ids:
+            customlist_data_builder = CustomlistItemDataBuilder(
+                guide_id, settings.zenefits_app_key
             )
-            response.raise_for_status()
+            for employee in data["data"]:
 
-            relations_data = {
-                "custom_list": settings.employee_customlist_id,
-                "custom_list_item": response.json()["id"],
-            }
-            response = builder_session.post(
-                "https://builder.guidebook.com/open-api/v1/custom-list-item-relations/",
-                data=relations_data,
-            )
-            response.raise_for_status()
-            print("Added {} to Builder".format(customlist_data["name"]))
+                # Only add active employees to the list
+                if not _is_active_employee(employee, zenefits_session):
+                    continue
+
+                customlist_data = customlist_data_builder.build(employee)
+
+                employee_custom_list_items_url = f"https://builder.guidebook.com/open-api/v1/custom-list-items/?guide={guide_id}&custom_lists={employee_customlist_id}"
+                
+                # Download and add employee photo to the builder post request if the photo is available
+                photo_available = False
+                if employee.get('photo_url'):
+                    img_response = requests.get(employee['photo_url'])
+                    photo_available = True if img_response.status_code == 200 else False
+
+                if photo_available:
+                    with open('image.jpg', 'wb') as handler:
+                        handler.write(img_response.content)
+                    with open('image.jpg', 'rb') as handler:
+                        response = builder_client.post(employee_custom_list_items_url, customlist_data, {"thumbnail": handler})
+                    os.remove('image.jpg')
+                else:
+                    response = builder_client.post(employee_custom_list_items_url, customlist_data)
+
+                # Attach the new custom list item to the custom list
+                relations_data = {
+                    "custom_list": employee_customlist_id,
+                    "custom_list_item": response.json()["id"],
+                }
+                builder_client.post("https://builder.guidebook.com/open-api/v1/custom-list-item-relations/", relations_data)
+                print("Added {} to Builder".format(customlist_data["name"]))
+
         next_url = data["next_url"]
 
 

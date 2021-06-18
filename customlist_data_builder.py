@@ -2,7 +2,7 @@ import json
 import requests
 
 
-class CustomlistDataBuilder(object):
+class CustomlistItemDataBuilder(object):
     def __init__(self, guide_id, zenefits_app_key):
         self.location_cache = {}
         self.department_cache = {}
@@ -11,7 +11,7 @@ class CustomlistDataBuilder(object):
 
     def build(self, employee):
         """
-        Builds the CustomList data structure that will be
+        Builds the CustomListItem data structure that will be
         sent to Builder.  This includes the following fields:
             1) Import ID - the employee's ID in Zenefits
             2) Name - The employee's preferred name and last name

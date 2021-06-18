@@ -5,5 +5,5 @@
 builder_api_key = "CHANGE-ME"
 zenefits_app_key = "CHANGE-ME"
 zenefits_company_id = "CHANGE-ME"
-guide_id = "CHANGE-ME"
-employee_customlist_id = "CHANGE-ME"
+guide_and_list_ids = [("CHANGE-ME", "CHANGE-ME")]
+
