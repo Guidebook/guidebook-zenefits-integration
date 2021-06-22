@@ -37,8 +37,8 @@ class CustomlistItemDataBuilder(object):
 
         # Build a string that contains most of the employee's info that can be
         # displayed in the description field of the custom list item
-        work_email_string = "<p>Work Email: {}</p>".format(employee["work_email"])
-        work_phone_string = "<p>Work Phone: {}</p>".format(employee["work_phone"])
+        work_email_string = '<p>Work Email: <a href="mailto:{}">{}</a></p>'.format(employee["work_email"], employee["work_email"]) if employee.get("work_email") else '<p>Work Email: None</p>'
+        work_phone_string = '<p>Work Phone: <a href="tel:{}">{}</a></p>'.format(employee["work_phone"], employee["work_phone"]) if employee.get("work_phone") else '<p>Work Phone: None</p>'
 
         if employee["location"]["url"] is not None:
             location_url = employee["location"]["url"]
